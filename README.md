@@ -37,6 +37,15 @@ The TA will check the completion of the following tasks:
 Each member of the group should be able to answer all of the following questions. The TA will ask each person one question selected at random, and the student must be able to answer the question to get credit for the lab.
 
 - Q1: Explain the scheduling strategy of Node Affinity and the scenarios to use it.
+    - You essentially define hard and soft requirements that are used during scheduling that have key value pairs that define "affinities" that send pods to specific nodes. Good for when you have pods with specific hardware requirements or software requiremetns.
 - Q2: Explain the scheduling strategy of Pod Anti-Affinity and the scenarios to use it.
+    - Prevents pods with matching anti-affinity rules from being placed on certain nodes. Good for when load balancing, distribution is really important.
 - Q3: Explain the deployment strategy of blue-green deployment. How to switch between the two versions of deployments?
+    - It is a strategy where you have two deployments, one called blue and one called green. Only one will be up on production at a time, and you can easily update one, and then switch which is active, in order to update without downtime.
+    We can switch with:
+```bash
+$ kubectl patch service  SERVICENAME -p '{"spec":{"selector":{"KEY": "VALUE"}}}'
+``` 
 - Q4: Explain the deployment strategy of canary deployment. How to adjust the ratio of users getting serviced by the canary deployment?
+    - Rolled out to a small portion of users at a time. traffic gets directed to both canary versions. If successful the canary continues to roll out, if not it rolls back.
+    In this configuration, nginx.ingress.kubernetes.io/canary: "true" enables canary deployment, and nginx.ingress.kubernetes.io/canary-weight: "20" directs 20% of the traffic to the canary version
