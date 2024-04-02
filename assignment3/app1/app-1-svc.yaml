@@ -3,8 +3,10 @@ kind: Service
 metadata:
   name: app-1-svc
 spec:
+  type: ClusterIP
   selector:
     app: app-1
   ports:
     - protocol: TCP
       port: 8080
+      targetPort: 3000

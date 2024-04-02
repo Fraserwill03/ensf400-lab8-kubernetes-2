@@ -16,4 +16,3 @@ spec:
             name: app-2-svc
             port:
               number: 8080
-  ingressClassName: nginx
