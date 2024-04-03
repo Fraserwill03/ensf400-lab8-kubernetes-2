@@ -49,14 +49,14 @@ curl http://$(minikube ip)/app
 Example outputs are shown below:
 
 ### Setup:
-![Setup](./media/startup.png)
+![Setup](./startup.png)
 
 ### Output from `curl http://$(minikube ip)/`
-![output1](./media/output1.png)
+![output1](./output1.png)
 
 As you can see, out of 10 requests, 7 got routed to `app-1` and 3 got routed to `app-2`. This is in line with what we would expect from the way we setup the canary load balancing.
 
 ### Output from `curl http://$(minikube ip)/app`
-![output2](./media/output2.png)
+![output2](./output2.png)
 
 I have additionally added this screenshot to show the `app-1` and `app-2` ingress in action independantly.
