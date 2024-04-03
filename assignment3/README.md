@@ -1,43 +1,62 @@
-# ENSF 400 - Assignment 3 - Kubernetes
+# ENSF 400 Assignment 3
+**William Fraser ~ 30158991**
 
-This assignment has a full mark of 100. It takes up 5\% of your final grade. 
+## Steps to run:
+### 1. Start minikube
+In order to begin, one must first start minikube. This can be done with the following command:
 
-You will use Minikube in Codespaces to deploy an nginx service an 2 backend apps.
-
-## Requirements
-
-Based on your work for [Lab 7](https://github.com/denoslab/ensf400-lab7-kubernetes-1) and [Lab 8](https://github.com/denoslab/ensf400-lab8-kubernetes-2), deploy an `nginx` service so that:
-
-1. A `Deployment` config defined in `nginx-dep.yaml`. The Deployment has the name `nginx-dep` with 5 replicas. The Deployment uses a base image `nginx` with the version tag `1.14.2`. Expose port `8080`.
-1. A `ConfigMap` defined in `nginx-configmap.yaml`, The `data` in the configmap has a key-value pair with the key being `nginx.cfg` and value being the following:
-```
-upstream backend {
-    server app-1:8080;
-    server app-2:8080;
-}
-
-server {
-    location / {
-        proxy_pass http://backend;
-    }
-}
-```
-1. In the Deployment `nginx-dep`, mount the configuration file to the correct path of `nginx` so that it serves as a load balancer, similar to what we have for [Assignment 2](https://github.com/denoslab/ensf400-lab5-ansible/tree/main/assignment2).
-1. A `Service` config of type `ClusterIP` defined in `nginx-svc.yaml`. The service has the name `nginx-svc`, exposes port `8080`, and should use label selectors to select the pods from the `Deployment` defined in the last step.
-1. An `Ingress` config named `nginx-ingress.yaml` redirecting the requests to path `/nginx` to the backend service `nginx-svc`.
-1. Write `Deployment` and `Service` for `app-1` and `app-2`, respectively.
-1. Define two other `Ingress` configs named `app-1-ingress.yaml` and `app-2-ingress.yaml`, both redicting request to `/app` to the backend apps, taking `app-1` as the main deployment, and `app-2` as a canary deployment. The ingresses will redirect 70% of the traffic to `app-1` and 30% of the traffic to `app-2`. The docker images are pre-built for you. They can be downloaded using the URL below:
-```
-app-1: ghcr.io/denoslab/ensf400-sample-app:v1
-app-2: ghcr.io/denoslab/ensf400-sample-app:v2
+```bash
+minikube start
 ```
 
-## Deliverables
+### 2. Enable ingress controller
+The next step is to enable the ingress controller addon. This is done with the commmand:
 
-1. (10%) `nginx-dep.yaml`
-1. (10%) `nginx-configmap.yaml`
-1. (10%) `nginx-svc.yaml`
-1. (20%) `nginx-ingress.yaml`. Include steps showing the requests using `curl` and responses from load-balanced app backends (`app-1`, `app-2`, and `app-3`).
-1. (15%) `app-1-dep.yaml`, `app-1-svc.yaml`, `app-2-dep.yaml`, `app-2-svc.yaml`.
-1. (20%) `app-1-ingress.yaml` and `app-2-ingress.yaml`.
-1. (15%) A `README.md` Markdown file describing the steps and outputs meeting the requirements. 
+```bash
+minikube addons enable ingress
+```
+
+### 3. Apply Resource Configuration 
+In order to apply changes to the kubernetes resources, or in this case, create them, run the following command from the directory containing all of my /yaml files.
+
+```bash
+kubectl apply -f ./ -R 
+```
+
+This essentially runs the apply command recursively for all files in the directory.
+
+### 4. Test Output
+In order to test the output we can run one the following two commands:
+
+```bash
+curl http://$(minikube ip)/
+```
+
+This will use the `nginx-ingress` to redirect the request coming into minikube to the nginx pods defined in `nginx-dep`. This will be redirected becuase `nginx-ingress` looks for requests with the '/' prefix. This then goes through our load balancer, and if you run multiple times you can see the response coming from both app-1 and app-2 deployments.
+
+You can also run
+
+```bash
+curl http://$(minikube ip)/app
+```
+
+which skips our nginx pods and uses the `app-1-ingress` and `app-2-ingress` to directly send the request to the `app-1` and `app-2` pods. This is still load balanced as the 30-70 canary balancing is setup through the apps' ingresses.
+
+```bash
+curl http://$(minikube ip)/app
+```
+
+Example outputs are shown below:
+
+### Setup:
+![Setup](./media/startup.png)
+
+### Output from `curl http://$(minikube ip)/`
+![output1](./media/output1.png)
+
+As you can see, out of 10 requests, 7 got routed to `app-1` and 3 got routed to `app-2`. This is in line with what we would expect from the way we setup the canary load balancing.
+
+### Output from `curl http://$(minikube ip)/app`
+![output2](./media/output2.png)
+
+I have additionally added this screenshot to show the `app-1` and `app-2` ingress in action independantly.
