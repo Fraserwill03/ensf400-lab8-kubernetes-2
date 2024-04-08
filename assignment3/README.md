@@ -40,7 +40,7 @@ You can also run
 curl http://$(minikube ip)/app
 ```
 
-which skips our nginx pods and uses the `app-1-ingress` and `app-2-ingress` to directly send the request to the `app-1` and `app-2` pods. This is still load balanced as the 30-70 canary balancing is setup through the apps' ingresses.
+which skips our nginx pods and uses the `app-1-ingress` and `app-2-ingress` to directly send the request to the `app-1` and `app-2` pods. This is load balanced as the 30-70 canary balancing is setup through the apps' ingresses.
 
 ```bash
 curl http://$(minikube ip)/app
@@ -54,9 +54,9 @@ Example outputs are shown below:
 ### Output from `curl http://$(minikube ip)/`
 ![output1](./media/output1.png)
 
-As you can see, out of 10 requests, 7 got routed to `app-1` and 3 got routed to `app-2`. This is in line with what we would expect from the way we setup the canary load balancing.
+As you can see, the nginx is load balancing this and requests are sent to both app-1 and app-2 throught their respective services, as defined in the nginx configuration.
 
 ### Output from `curl http://$(minikube ip)/app`
 ![output2](./media/output2.png)
 
-I have additionally added this screenshot to show the `app-1` and `app-2` ingress in action independantly.
+As shown here, requests to `/app` use the canary configuration and are balanced 70% towards app-1 and 30% to app-2.
